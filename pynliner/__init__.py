@@ -36,8 +36,10 @@ import re
 import urllib2
 import cssutils
 from BeautifulSoup import BeautifulSoup, Comment
-from soupselect import select
+import logging
+from soupselect import select, PynlinerSelect_Exception
 
+log = logging.getLogger(__name__)
 
 class Pynliner(object):
     """Pynliner class"""
@@ -211,7 +213,10 @@ class Pynliner(object):
             selectors = rule.selectorText.split(',')
             elements = []
             for selector in selectors:
-                elements += select(self.soup, selector)
+                try:
+                    elements += select(self.soup, selector)
+                except PynlinerSelect_Exception as exp:
+                    log.error(exp)
             # build prop_list for each selected element
             for elem in elements:
                 if elem not in elem_prop_map:

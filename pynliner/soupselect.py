@@ -16,12 +16,18 @@ patched to support multiple class selectors here http://code.google.com/p/soupse
 """
 import re
 import BeautifulSoup
+import logging
+
+log = logging.getLogger(__name__)
 
 attribute_regex = re.compile('\[(?P<attribute>\w+)(?P<operator>[=~\|\^\$\*]?)=?["\']?(?P<value>[^\]"]*)["\']?\]')
 pseudo_classes_regexes = (
     re.compile(':(first-child)'),
     re.compile(':(last-child)')
 )
+
+class PynlinerSelect_Exception(Exception):
+    pass
 
 def get_attribute_checker(operator, attribute, value=''):
     """
@@ -100,7 +106,8 @@ def select(soup, selector):
             handle_token = False
             match = re.search('([_0-9a-zA-Z-#.:*"\'\[\\]=]+)$', selector)
             if not match:
-                raise Exception("No match was found. We're done or something is broken")
+                log.error("No match found for " + selector)
+                raise PynlinerSelect_Exception("No match was found. We're done or something is broken")
             token = match.groups(1)[0]
 
             # remove this token from the selector
